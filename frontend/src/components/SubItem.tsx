@@ -1,10 +1,16 @@
 interface Subscription {
-  url: string;
-  title: string;
+  id: string;
+  name: string;
+  amount: number;
+  nextRenewal: string;
+  url?: string; // optional for now
+  title?: string; // optional for now
 }
 
 interface SubItemProps {
   subscription: Subscription;
+  onEdit?: (sub: Subscription) => void;
+  onDelete?: (id: string) => void;
 }
 
 function SubItem({ subscription }: SubItemProps) {

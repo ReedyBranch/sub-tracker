@@ -1,4 +1,6 @@
 import NavBar from "../components/NavBar";
+import styles from "./SubDashboard.module.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function SubDashboard() {
   // Fetches all subscriptions from backend
@@ -13,12 +15,12 @@ function SubDashboard() {
     <>
       <NavBar />
       {/* Page Container */}
-      <div className="dash-container">
-        <h1 className="dash-title">Your Subscriptions</h1>
+      <div className={styles.dashContainer}>
+        <h1 className="dashTitle">Your Subscriptions</h1>
 
         {/* Action Button */}
-        <div className="dash-actions">
-          <button className="add-sub">+ Add Subscription Here</button>
+        <div className="dashActions">
+          <button className="btn btn-primary">+ Add Subscription Here</button>
         </div>
 
         {/* Subscription Form */}
@@ -26,7 +28,7 @@ function SubDashboard() {
         {/* <SubForm /> */}
 
         {/* Subscriptions List */}
-        <div className="sub-list">
+        <div className="subList">
           {/* Here is for the subscription list we will have later */}
           {/* <SubList /> */}
         </div>
