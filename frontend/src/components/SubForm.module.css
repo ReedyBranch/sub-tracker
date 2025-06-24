@@ -1,0 +1,17 @@
+.formContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.fullWidthButton {
+  width: 100%;
+}

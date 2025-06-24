@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import styles from "./SubForm.module.css"; // ✅ Import your CSS module
 
 interface SubFormProps {
   id: string;
@@ -18,6 +19,12 @@ function SubForm(props: SubFormProps) {
   const [amount, setAmount] = useState(0);
   const [nextRenewal, setNextRenewal] = useState("");
 
+  useEffect(() => {
+    setName(props.name);
+    setAmount(props.amount);
+    setNextRenewal(props.nextRenewal);
+  }, [props.name, props.amount, props.nextRenewal]);
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -27,16 +34,13 @@ function SubForm(props: SubFormProps) {
     }
 
     const newSub = {
-      id: props.id ?? crypto.randomUUID(), // this is a fallback ID so creating vs editing
+      id: props.id ?? crypto.randomUUID(),
       name,
       amount,
       nextRenewal,
     };
 
-    console.log("Submitting subscription:", newSub);
-    if (props.onSubmit) {
-      props.onSubmit(newSub);
-    }
+    props.onSubmit?.(newSub);
 
     setName("");
     setAmount(0);
@@ -44,35 +48,44 @@ function SubForm(props: SubFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Subscription Name</label>
+    <form onSubmit={handleSubmit} className={styles.formContainer}>
+      <div className={`form-group ${styles.formGroup}`}>
+        <label className="form-label">Subscription Name</label>
         <input
           type="text"
+          className="form-control"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
       </div>
 
-      <div>
-        <label>Amount Paying ($)</label>
+      <div className={`form-group ${styles.formGroup}`}>
+        <label className="form-label">Amount Paying ($)</label>
         <input
           type="number"
+          className="form-control"
           value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
+          required
         />
       </div>
 
-      <div>
-        <label>Next Renewal</label>
+      <div className={`form-group ${styles.formGroup}`}>
+        <label className="form-label">Next Renewal</label>
         <input
           type="date"
+          className="form-control"
           value={nextRenewal}
           onChange={(e) => setNextRenewal(e.target.value)}
+          required
         />
       </div>
 
-      <button type="submit" className="btn btn-primary">
+      <button
+        type="submit"
+        className={`btn btn-primary ${styles.fullWidthButton}`}
+      >
         Submit
       </button>
     </form>
