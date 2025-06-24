@@ -17,29 +17,30 @@ interface SubListProps {
   onDelete?: (id: string) => void;
 }
 
-function SubList(props: SubListProps) {
-  const { subscriptions, onEdit, onDelete } = props;
-
+function SubList({ subscriptions, onEdit, onDelete }: SubListProps) {
   return (
-    <div className={`list-group ${styles.subList}`}>
+    <div className={styles.subList}>
       {subscriptions.length === 0 ? (
-        <p className="text-muted">No subscriptions found.</p>
+        <p className="text-muted text-center mt-5">No subscriptions found.</p>
       ) : (
-        subscriptions.map((sub) => (
-          <SubItem
-            key={sub.id}
-            subscription={{
-              id: sub.id,
-              name: sub.name,
-              amount: sub.amount,
-              nextRenewal: sub.nextRenewal,
-              url: "",
-              title: "",
-            }}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))
+        <div className="row row-cols-1 row-cols-md-2 g-4">
+          {subscriptions.map((sub) => (
+            <div className="col" key={sub.id}>
+              <SubItem
+                subscription={{
+                  id: sub.id,
+                  name: sub.name,
+                  amount: sub.amount,
+                  nextRenewal: sub.nextRenewal,
+                  url: "",
+                  title: "",
+                }}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

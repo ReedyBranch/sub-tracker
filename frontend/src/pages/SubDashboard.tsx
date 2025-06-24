@@ -67,7 +67,7 @@ function SubDashboard() {
         <h1 className={styles.dashTitle}>Your Subscriptions</h1>
 
         {/* Toggle Form Button */}
-        <div className="dashActions">
+        <div className={styles.dashActions}>
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -75,7 +75,7 @@ function SubDashboard() {
               setIsFormVisible(true);
             }}
           >
-            + Add Subscription Here
+            Add Subscription
           </button>
         </div>
 
@@ -91,7 +91,7 @@ function SubDashboard() {
         )}
 
         {/* Subscription List */}
-        <div className="subList">
+        <div className={styles.subList}>
           <SubList
             subscriptions={subscriptions}
             onEdit={handleEdit}
