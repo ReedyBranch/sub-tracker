@@ -1,36 +1,102 @@
+import { useState } from "react";
 import NavBar from "../components/NavBar";
+import SubForm from "../components/SubForm";
+import SubList from "../components/SubList";
 import styles from "./SubDashboard.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function SubDashboard() {
-  // Fetches all subscriptions from backend
-  // Include UI elements to add, edit, or delete subscriptions
-  // Be the hub of the application
+  const [subscriptions, setSubscriptions] = useState<
+    {
+      id: string;
+      name: string;
+      amount: number;
+      nextRenewal: string;
+    }[]
+  >([]);
 
-  // SubscriptionList --> display list of subs - separate file for component as are the rest of these
-  // SubscriptionItem --> display a sub
-  // SubscriptionForm --> manage sub and create a sub
+  const [editingSub, setEditingSub] = useState<{
+    id: string;
+    name: string;
+    amount: number;
+    nextRenewal: string;
+  } | null>(null);
+
+  const [isFormVisible, setIsFormVisible] = useState(false);
+
+  // Add or Edit Submission Handler
+  const handleSubmit = (sub: {
+    id: string;
+    name: string;
+    amount: number;
+    nextRenewal: string;
+  }) => {
+    const exists = subscriptions.some((s) => s.id === sub.id);
+
+    if (exists) {
+      setSubscriptions((prev) => prev.map((s) => (s.id === sub.id ? sub : s)));
+    } else {
+      setSubscriptions((prev) => [...prev, sub]);
+    }
+
+    setEditingSub(null);
+    setIsFormVisible(false);
+  };
+
+  // Edit Click Handler
+  const handleEdit = (sub: {
+    id: string;
+    name: string;
+    amount: number;
+    nextRenewal: string;
+  }) => {
+    setEditingSub(sub);
+    setIsFormVisible(true);
+  };
+
+  // Delete Handler
+  const handleDelete = (id: string) => {
+    setSubscriptions((prev) => prev.filter((sub) => sub.id !== id));
+  };
 
   return (
     <>
       <NavBar />
-      {/* Page Container */}
-      <div className={styles.dashContainer}>
-        <h1 className="dashTitle">Your Subscriptions</h1>
 
-        {/* Action Button */}
+      <div className={styles.dashContainer}>
+        <h1 className={styles.dashTitle}>Your Subscriptions</h1>
+
+        {/* Toggle Form Button */}
         <div className="dashActions">
-          <button className="btn btn-primary">+ Add Subscription Here</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setEditingSub(null);
+              setIsFormVisible(true);
+            }}
+          >
+            + Add Subscription Here
+          </button>
         </div>
 
-        {/* Subscription Form */}
-        {/* Conditionally render this when user wants to add/edit */}
-        {/* <SubForm /> */}
+        {/* Subscription Form (conditionally rendered) */}
+        {isFormVisible && (
+          <SubForm
+            id={editingSub?.id || ""}
+            name={editingSub?.name || ""}
+            amount={editingSub?.amount || 0}
+            nextRenewal={editingSub?.nextRenewal || ""}
+            onSubmit={handleSubmit}
+          />
+        )}
 
-        {/* Subscriptions List */}
+        {/* Subscription List */}
         <div className="subList">
-          {/* Here is for the subscription list we will have later */}
-          {/* <SubList /> */}
+          <SubList
+            subscriptions={subscriptions}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         </div>
       </div>
     </>

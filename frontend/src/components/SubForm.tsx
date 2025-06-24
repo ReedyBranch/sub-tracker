@@ -5,6 +5,12 @@ interface SubFormProps {
   name: string;
   amount: number;
   nextRenewal: string;
+  onSubmit?: (sub: {
+    id: string;
+    name: string;
+    amount: number;
+    nextRenewal: string;
+  }) => void;
 }
 
 function SubForm(props: SubFormProps) {
@@ -28,6 +34,9 @@ function SubForm(props: SubFormProps) {
     };
 
     console.log("Submitting subscription:", newSub);
+    if (props.onSubmit) {
+      props.onSubmit(newSub);
+    }
 
     setName("");
     setAmount(0);

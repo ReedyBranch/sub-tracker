@@ -1,5 +1,5 @@
 import SubItem from "./SubItem";
-import styles from "./SubDashboard.module.css";
+import styles from "../pages/SubDashboard.module.css";
 
 interface SubListProps {
   subscriptions: {
