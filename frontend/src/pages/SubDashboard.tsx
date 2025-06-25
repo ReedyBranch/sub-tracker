@@ -1,105 +1,60 @@
 import { useState } from "react";
-import NavBar from "../components/NavBar";
+import DashboardLayout from "../layouts/DashboardLayout";
 import SubForm from "../components/SubForm";
 import SubList from "../components/SubList";
-import styles from "./SubDashboard.module.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { createSubscription } from "../api/subscription.api";
+
+interface Subscription {
+  id: string;
+  name: string;
+  amount: number;
+  nextRenewal: string;
+  // Add other fields as needed
+}
 
 function SubDashboard() {
-  const [subscriptions, setSubscriptions] = useState<
-    {
-      id: string;
-      name: string;
-      amount: number;
-      nextRenewal: string;
-    }[]
-  >([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
-  const [editingSub, setEditingSub] = useState<{
-    id: string;
-    name: string;
-    amount: number;
-    nextRenewal: string;
-  } | null>(null);
+  const handleAddSubscription = async (sub: Subscription) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in.");
+        return;
+      }
 
-  const [isFormVisible, setIsFormVisible] = useState(false);
+      // Map Subscription to SubscriptionData
+      const subscriptionData = {
+        name: sub.name,
+        amount: sub.amount,
+        nextRenewal: sub.nextRenewal,
+        // Provide values for required fields
+        price: sub.amount, // or another appropriate value
+        startDate: sub.nextRenewal, // or another appropriate value
+      };
 
-  // Add or Edit Submission Handler
-  const handleSubmit = (sub: {
-    id: string;
-    name: string;
-    amount: number;
-    nextRenewal: string;
-  }) => {
-    const exists = subscriptions.some((s) => s.id === sub.id);
-
-    if (exists) {
-      setSubscriptions((prev) => prev.map((s) => (s.id === sub.id ? sub : s)));
-    } else {
-      setSubscriptions((prev) => [...prev, sub]);
+      const response = (await createSubscription(subscriptionData, token)) as {
+        data: { subscription: Subscription };
+      };
+      setSubscriptions((prev) => [...prev, response.data.subscription]);
+    } catch (err) {
+      console.error("Failed to create subscription:", err);
+      alert("Something went wrong. Check console for details.");
     }
-
-    setEditingSub(null);
-    setIsFormVisible(false);
-  };
-
-  // Edit Click Handler
-  const handleEdit = (sub: {
-    id: string;
-    name: string;
-    amount: number;
-    nextRenewal: string;
-  }) => {
-    setEditingSub(sub);
-    setIsFormVisible(true);
-  };
-
-  // Delete Handler
-  const handleDelete = (id: string) => {
-    setSubscriptions((prev) => prev.filter((sub) => sub.id !== id));
   };
 
   return (
-    <>
-      <NavBar />
-
-      <div className={styles.dashContainer}>
-        <h1 className={styles.dashTitle}>Your Subscriptions</h1>
-
-        {/* Toggle Form Button */}
-        <div className={styles.dashActions}>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              setEditingSub(null);
-              setIsFormVisible(true);
-            }}
-          >
-            Add Subscription
-          </button>
-        </div>
-
-        {/* Subscription Form (conditionally rendered) */}
-        {isFormVisible && (
-          <SubForm
-            id={editingSub?.id || ""}
-            name={editingSub?.name || ""}
-            amount={editingSub?.amount || 0}
-            nextRenewal={editingSub?.nextRenewal || ""}
-            onSubmit={handleSubmit}
-          />
-        )}
-
-        {/* Subscription List */}
-        <div className={styles.subList}>
-          <SubList
-            subscriptions={subscriptions}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </div>
-      </div>
-    </>
+    <DashboardLayout>
+      <h1>My Subscriptions</h1>
+      <SubForm
+        id=""
+        name=""
+        amount={0}
+        nextRenewal=""
+        onSubmit={handleAddSubscription}
+      />
+      <SubList subscriptions={subscriptions} />
+    </DashboardLayout>
   );
 }
 
