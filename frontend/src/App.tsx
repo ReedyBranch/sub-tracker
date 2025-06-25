@@ -1,20 +1,25 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import SubDashboard from "./pages/SubDashboard";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
+import SubDashboard from "./pages/SubDashboard";
+import PrivateRoute from "./routes/PrivateRoute"; // adjust path if needed
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<SubDashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <SubDashboard />
+          </PrivateRoute>
+        }
+      />
+    </Routes>
   );
 }
 

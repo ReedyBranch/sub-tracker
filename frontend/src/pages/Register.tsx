@@ -1,30 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/auth.api";
 
 function Register() {
   const navigate = useNavigate();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!email || !password || !confirm) {
-      alert("All fields are required");
-      return;
+    try {
+      const res = await registerUser(name, email, password);
+      console.log("Registration successful!", res);
+      navigate("/dashboard");
+    } catch (error: unknown) {
+      let message = "Registration failed";
+      type APIError = {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+      const err = error as APIError;
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        err.response &&
+        typeof err.response === "object" &&
+        err.response.data &&
+        typeof err.response.data === "object" &&
+        err.response.data.message
+      ) {
+        message = err.response.data.message as string;
+      }
+      alert(message);
     }
-
-    if (password !== confirm) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    console.log("Registering with:", { email, password });
-
-    // TEMP: Simulate successful registration
-    navigate("/dashboard");
   };
 
   return (
@@ -35,6 +48,17 @@ function Register() {
         style={{ maxWidth: 400, width: "100%" }}
       >
         <h2 className="mb-4 text-center">Register</h2>
+
+        <div className="mb-3">
+          <label className="form-label">Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
 
         <div className="mb-3">
           <label className="form-label">Email</label>
@@ -58,23 +82,12 @@ function Register() {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Confirm Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn btn-success w-100">
+        <button type="submit" className="btn btn-primary w-100">
           Register
         </button>
 
         <p className="text-center mt-3 small">
-          Already have an account? <a href="/login">Log in</a>
+          Already have an account? <a href="/login">Login</a>
         </p>
       </form>
     </div>

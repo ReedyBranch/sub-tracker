@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth.api"; // Make sure this function exists
 
 function Login() {
   const navigate = useNavigate();
@@ -7,19 +8,51 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // You’ll replace this with real API logic soon
     if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
 
-    console.log("Logging in with:", { email, password });
+    try {
+      const response = (await loginUser(email, password)) as {
+        data?: { token?: string };
+      };
+      const token = response?.data?.token;
 
-    // TEMP: Simulate login and redirect
-    navigate("/dashboard");
+      if (token) {
+        localStorage.setItem("token", token); // save the token
+        navigate("/dashboard");
+      } else {
+        alert("Login failed: No token returned.");
+      }
+    } catch (error: unknown) {
+      let message = "Login failed";
+      type APIError = {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+      const err = error as APIError;
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in err &&
+        typeof err.response === "object" &&
+        err.response !== null &&
+        "data" in err.response &&
+        typeof err.response.data === "object" &&
+        err.response.data !== null &&
+        "message" in err.response.data
+      ) {
+        message = err.response.data.message as string;
+      }
+      alert(message);
+    }
   };
 
   return (
