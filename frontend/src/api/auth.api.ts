@@ -14,3 +14,7 @@ export const loginUser = async (email: string, password: string) => {
   const res = await API.post("/sign-in", { email, password });
   return res.data;
 };
+
+export function getToken(): string | null {
+  return localStorage.getItem("token");
+}

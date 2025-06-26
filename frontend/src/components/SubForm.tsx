@@ -1,95 +1,106 @@
-import { useState, useEffect } from "react";
-import styles from "./SubForm.module.css"; // ✅ Import your CSS module
+import React, { useState } from "react";
 
-interface SubFormProps {
-  id: string;
-  name: string;
-  amount: number;
-  nextRenewal: string;
-  onSubmit?: (sub: {
-    id: string;
+export interface SubscriptionFormProps {
+  onSubmit: (subscription: {
     name: string;
-    amount: number;
-    nextRenewal: string;
+    price: number;
+    startDate: string;
+    category: string;
+    paymentMethod: string;
   }) => void;
 }
 
-function SubForm(props: SubFormProps) {
+const SubForm: React.FC<SubscriptionFormProps> = ({ onSubmit }) => {
   const [name, setName] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [nextRenewal, setNextRenewal] = useState("");
+  const [price, setPrice] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [category, setCategory] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
-  useEffect(() => {
-    setName(props.name);
-    setAmount(props.amount);
-    setNextRenewal(props.nextRenewal);
-  }, [props.name, props.amount, props.nextRenewal]);
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !amount || !nextRenewal) {
+    // Basic field validation
+    if (!name || !price || !startDate || !category || !paymentMethod) {
       alert("Please fill out all fields.");
       return;
     }
 
-    const newSub = {
-      id: props.id ?? crypto.randomUUID(),
-      name,
-      amount,
-      nextRenewal,
+    // Trim and format the category to match backend enums
+    const formattedCategory = category.trim().toLowerCase();
+
+    const newSubscription = {
+      name: name.trim(),
+      price: Number(price),
+      startDate,
+      category: formattedCategory,
+      paymentMethod: paymentMethod.trim(),
     };
 
-    props.onSubmit?.(newSub);
-
-    setName("");
-    setAmount(0);
-    setNextRenewal("");
-  }
+    try {
+      await onSubmit(newSubscription);
+      // Clear form after submission
+      setName("");
+      setPrice(0);
+      setStartDate("");
+      setCategory("");
+      setPaymentMethod("");
+    } catch (error) {
+      console.error("Failed to create subscription:", error);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.formContainer}>
-      <div className={`form-group ${styles.formGroup}`}>
-        <label className="form-label">Subscription Name</label>
+    <form onSubmit={handleSubmit}>
+      <label>
+        Subscription Name
         <input
           type="text"
-          className="form-control"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
-      </div>
-
-      <div className={`form-group ${styles.formGroup}`}>
-        <label className="form-label">Amount Paying ($)</label>
+      </label>
+      <label>
+        Amount Paying ($)
         <input
           type="number"
-          className="form-control"
-          value={amount}
-          onChange={(e) => setAmount(parseFloat(e.target.value))}
+          value={price}
+          onChange={(e) => setPrice(Number(e.target.value))}
           required
         />
-      </div>
-
-      <div className={`form-group ${styles.formGroup}`}>
-        <label className="form-label">Next Renewal</label>
+      </label>
+      <label>
+        Category
+        <input
+          type="text"
+          placeholder="e.g. technology"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
+        />
+      </label>
+      <label>
+        Payment Method
+        <input
+          type="text"
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+          required
+        />
+      </label>
+      <label>
+        Next Renewal
         <input
           type="date"
-          className="form-control"
-          value={nextRenewal}
-          onChange={(e) => setNextRenewal(e.target.value)}
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
           required
         />
-      </div>
-
-      <button
-        type="submit"
-        className={`btn btn-primary ${styles.fullWidthButton}`}
-      >
-        Submit
-      </button>
+      </label>
+      <button type="submit">Submit</button>
     </form>
   );
-}
+};
 
 export default SubForm;
