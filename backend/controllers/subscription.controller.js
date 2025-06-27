@@ -1,5 +1,5 @@
-import axios from "axios";
 import Subscription from "../models/subscription.model.js";
+import { workflowClient } from "../config/upstash.js"; // uses your existing workflowClient instance
 
 export const createSubscription = async (req, res, next) => {
   try {
@@ -9,21 +9,21 @@ export const createSubscription = async (req, res, next) => {
       status: "active",
     });
 
-    // Trigger workflow manually using Axios
     let workflowRunId = null;
-    const triggerUrl =
-      "http://localhost:5500/api/v1/workflows/subscription/reminder";
 
     try {
-      const result = await axios.post(triggerUrl, {
-        subscriptionId: subscription._id,
-        userEmail: req.user.email, // optional: include other metadata
+      const result = await workflowClient.publish({
+        url: "http://localhost:5500/api/v1/workflows/subscription/reminder",
+        body: {
+          subscriptionId: subscription._id.toString(),
+          userEmail: req.user.email,
+        },
       });
 
-      workflowRunId = result.data?.workflowRunId || null;
-      console.log("✅ Workflow triggered successfully:", result.data);
+      workflowRunId = result.workflowId || null;
+      console.log("✅ QStash workflow published successfully:", result);
     } catch (error) {
-      console.error("⚠️ Failed to trigger workflow:", error.message);
+      console.error("⚠️ QStash publish failed:", error.message);
     }
 
     res.status(201).json({
