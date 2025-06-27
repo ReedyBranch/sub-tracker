@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import SubForm from "../components/SubForm";
 import SubList from "../components/SubList";
-import { createSubscription } from "../api/subscription.api";
+import {
+  createSubscription,
+  fetchUserSubscriptions,
+} from "../api/subscription.api";
 import { getToken } from "../api/auth.api";
 
 interface Subscription {
@@ -23,6 +26,33 @@ interface SubscriptionFormData {
 function SubDashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
+  // ✅ Fetch subscriptions on page load
+  useEffect(() => {
+    const loadSubscriptions = async () => {
+      try {
+        const data = await fetchUserSubscriptions();
+        const formatted = data.map(
+          (sub: {
+            _id: string;
+            name: string;
+            price: number;
+            startDate: string;
+          }) => ({
+            id: sub._id,
+            name: sub.name,
+            amount: sub.price,
+            nextRenewal: sub.startDate,
+          })
+        );
+        setSubscriptions(formatted);
+      } catch (error) {
+        console.error("Error loading subscriptions:", error);
+      }
+    };
+
+    loadSubscriptions();
+  }, []);
+
   const handleAddSubscription = async (sub: SubscriptionFormData) => {
     const token = getToken();
 
@@ -35,7 +65,6 @@ function SubDashboard() {
     };
 
     try {
-      // ✅ Now returns a single subscription object
       const subscription = await createSubscription(subscriptionData, token);
 
       const newSub: Subscription = {

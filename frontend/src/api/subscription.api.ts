@@ -57,3 +57,11 @@ export const getSubscriptions = async (token: string | null) => {
 
   return res.data;
 };
+
+
+export const fetchUserSubscriptions = async () => {
+  const response = await axios.get('/api/v1/subscriptions', {
+    withCredentials: true, // so your cookies (JWT) are sent
+  });
+  return (response.data as { data: Subscription[] }).data;
+};
