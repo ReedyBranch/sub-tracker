@@ -56,12 +56,13 @@ function SubDashboard() {
   const handleAddSubscription = async (sub: SubscriptionFormData) => {
     const token = getToken();
 
-    const subscriptionData: SubscriptionFormData = {
+    const subscriptionData = {
       name: sub.name,
       price: sub.price,
       startDate: sub.startDate,
       category: sub.category,
       paymentMethod: sub.paymentMethod,
+      frequency: "monthly", // or get this value from the form if available
     };
 
     try {

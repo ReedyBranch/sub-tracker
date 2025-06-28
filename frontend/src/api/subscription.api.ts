@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "./auth.api"; // ensure this exists
 
 const API_BASE_URL = "http://localhost:5500/api/v1";
 
@@ -8,6 +9,7 @@ export interface SubscriptionData {
   startDate: string;
   category: string;
   paymentMethod: string;
+  frequency: string;
 }
 
 interface Subscription {
@@ -17,7 +19,7 @@ interface Subscription {
   startDate: string;
   category: string;
   paymentMethod: string;
-  // Add any additional fields you need here
+  frequency: string;
 }
 
 interface CreateSubscriptionResponse {
@@ -58,10 +60,16 @@ export const getSubscriptions = async (token: string | null) => {
   return res.data;
 };
 
-
+// ✅ Fixed version that uses token-based auth
 export const fetchUserSubscriptions = async () => {
-  const response = await axios.get('/api/v1/subscriptions', {
-    withCredentials: true, // so your cookies (JWT) are sent
+  const token = getToken();
+  if (!token) throw new Error("No authentication token found.");
+
+  const res = await axios.get<{ data: Subscription[] }>(`${API_BASE_URL}/subscriptions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
-  return (response.data as { data: Subscription[] }).data;
+
+  return res.data.data; // assuming { data: Subscription[] }
 };
