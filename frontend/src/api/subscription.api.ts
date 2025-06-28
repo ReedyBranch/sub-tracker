@@ -60,7 +60,6 @@ export const getSubscriptions = async (token: string | null) => {
   return res.data;
 };
 
-// ✅ Fixed version that uses token-based auth
 export const fetchUserSubscriptions = async () => {
   const token = getToken();
   if (!token) throw new Error("No authentication token found.");
@@ -71,5 +70,40 @@ export const fetchUserSubscriptions = async () => {
     },
   });
 
-  return res.data.data; // assuming { data: Subscription[] }
+  return res.data.data;
 };
+
+export const deleteSubscription = async (id: string, token: string | null) => {
+  if (!token) throw new Error("No auth token");
+
+  const res = await axios.delete(`${API_BASE_URL}/subscriptions/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+export const updateSubscription = async (
+  id: string,
+  updates: Partial<SubscriptionData>,
+  token: string
+): Promise<Subscription> => {
+  const response = await axios.put<{ data: Subscription }>(
+    `${API_BASE_URL}/subscriptions/${id}`,
+    updates,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  console.log("🔍 Full Update API Response:", response);
+  console.log("response.data:", response.data);
+  console.log("response.data.data:", response.data?.data); 
+
+  return response.data.data; // <-- THIS assumes backend responds with `{ data: { ... } }`
+};
+

@@ -1,52 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export interface SubscriptionFormProps {
   onSubmit: (subscription: {
+    id?: string; // ✅ Optional when creating, required for editing
     name: string;
     price: number;
     startDate: string;
     category: string;
     paymentMethod: string;
+    frequency: string;
   }) => void;
+  initialData?: {
+    id?: string;
+    name: string;
+    price: number;
+    startDate: string;
+    category: string;
+    paymentMethod: string;
+    frequency: string;
+  };
 }
 
-const SubForm: React.FC<SubscriptionFormProps> = ({ onSubmit }) => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [startDate, setStartDate] = useState("");
-  const [category, setCategory] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+const SubForm: React.FC<SubscriptionFormProps> = ({
+  onSubmit,
+  initialData,
+}) => {
+  const [name, setName] = useState(initialData?.name || "");
+  const [price, setPrice] = useState(initialData?.price || 0);
+  const [startDate, setStartDate] = useState(initialData?.startDate || "");
+  const [category, setCategory] = useState(initialData?.category || "");
+  const [paymentMethod, setPaymentMethod] = useState(
+    initialData?.paymentMethod || ""
+  );
+  const [frequency, setFrequency] = useState(
+    initialData?.frequency || "monthly"
+  );
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setPrice(initialData.price);
+      setStartDate(initialData.startDate);
+      setCategory(initialData.category);
+      setPaymentMethod(initialData.paymentMethod);
+      setFrequency(initialData.frequency);
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic field validation
-    if (!name || !price || !startDate || !category || !paymentMethod) {
+    if (
+      !name ||
+      !price ||
+      !startDate ||
+      !category ||
+      !paymentMethod ||
+      !frequency
+    ) {
       alert("Please fill out all fields.");
       return;
     }
 
-    // Trim and format the category to match backend enums
-    const formattedCategory = category.trim().toLowerCase();
-
     const newSubscription = {
+      id: initialData?.id, // ✅ Include ID for editing
       name: name.trim(),
       price: Number(price),
       startDate,
-      category: formattedCategory,
+      category: category.trim().toLowerCase(),
       paymentMethod: paymentMethod.trim(),
+      frequency,
     };
 
     try {
       await onSubmit(newSubscription);
-      // Clear form after submission
-      setName("");
-      setPrice(0);
-      setStartDate("");
-      setCategory("");
-      setPaymentMethod("");
+
+      if (!initialData) {
+        // Reset only if it's not editing
+        setName("");
+        setPrice(0);
+        setStartDate("");
+        setCategory("");
+        setPaymentMethod("");
+        setFrequency("monthly");
+      }
     } catch (error) {
-      console.error("Failed to create subscription:", error);
+      console.error("Failed to submit subscription:", error);
     }
   };
 
@@ -74,7 +113,6 @@ const SubForm: React.FC<SubscriptionFormProps> = ({ onSubmit }) => {
         Category
         <input
           type="text"
-          placeholder="e.g. technology"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
@@ -90,6 +128,17 @@ const SubForm: React.FC<SubscriptionFormProps> = ({ onSubmit }) => {
         />
       </label>
       <label>
+        Frequency
+        <select
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
+          required
+        >
+          <option value="monthly">Monthly</option>
+          <option value="annually">Annually</option>
+        </select>
+      </label>
+      <label>
         Next Renewal
         <input
           type="date"
@@ -98,7 +147,7 @@ const SubForm: React.FC<SubscriptionFormProps> = ({ onSubmit }) => {
           required
         />
       </label>
-      <button type="submit">Submit</button>
+      <button type="submit">{initialData ? "Update" : "Submit"}</button>
     </form>
   );
 };

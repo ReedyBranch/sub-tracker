@@ -1,51 +1,71 @@
 import Subscription from "../models/subscription.model.js";
-import { workflowClient } from "../config/upstash.js"; // uses your existing workflowClient instance
 
-export const createSubscription = async (req, res, next) => {
+// Create a new subscription
+export const createSubscription = async (req, res) => {
   try {
-    const subscription = await Subscription.create({
-      ...req.body,
-      user: req.user._id,
-      status: "active",
-    });
-
-    let workflowRunId = null;
-
-    try {
-      const result = await workflowClient.publish({
-        url: "http://localhost:5500/api/v1/workflows/subscription/reminder",
-        body: {
-          subscriptionId: subscription._id.toString(),
-          userEmail: req.user.email,
-        },
-      });
-
-      workflowRunId = result.workflowId || null;
-      console.log("✅ QStash workflow published successfully:", result);
-    } catch (error) {
-      console.error("⚠️ QStash publish failed:", error.message);
-    }
+    const userId = req.user._id;
+    const newSub = new Subscription({ ...req.body, user: userId });
+    const savedSub = await newSub.save();
 
     res.status(201).json({
-      success: true,
-      data: {
-        subscription,
-        workflowRunId,
-      },
+      title: "CREATE subscription",
+      data: savedSub,
     });
-  } catch (e) {
-    console.error("❌ Subscription creation error:", e);
-    next(e);
+  } catch (error) {
+    console.error("Error creating subscription:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export const getUserSubscriptions = async (req, res, next) => {
+// Get all subscriptions for the logged-in user
+export const getUserSubscriptions = async (req, res) => {
   try {
     const userId = req.user._id;
     const subscriptions = await Subscription.find({ user: userId });
+    res.status(200).json({ data: subscriptions });
+  } catch (error) {
+    console.error("Error fetching subscriptions:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-    res.status(200).json({ success: true, data: subscriptions });
-  } catch (e) {
-    next(e);
+// Update a subscription
+export const updateSubscription = async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+    const updates = req.body;
+
+    const updatedSubscription = await Subscription.findByIdAndUpdate(
+      subscriptionId,
+      updates,
+      { new: true } // return the updated doc
+    );
+
+    if (!updatedSubscription) {
+      return res.status(404).json({ error: "Subscription not found" });
+    }
+
+    res.status(200).json({ data: updatedSubscription }); // ✅ this must match what your frontend expects
+  } catch (err) {
+    console.error("Update failed:", err);
+    res.status(500).json({ error: "Failed to update subscription" });
+  }
+};
+
+// Delete a subscription
+export const deleteSubscription = async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+
+    const deleted = await Subscription.findByIdAndDelete(subscriptionId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Subscription not found" });
+    }
+
+    res.status(200).json({ message: "Subscription deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting subscription:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
