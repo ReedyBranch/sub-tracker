@@ -23,9 +23,7 @@ interface Subscription {
 }
 
 interface CreateSubscriptionResponse {
-  data: {
-    subscription: Subscription;
-  };
+  data: Subscription;
 }
 
 export const createSubscription = async (
@@ -45,7 +43,7 @@ export const createSubscription = async (
     }
   );
 
-  return res.data.data.subscription;
+  return res.data.data;
 };
 
 export const getSubscriptions = async (token: string | null) => {

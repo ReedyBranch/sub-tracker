@@ -135,7 +135,9 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
           required
         >
           <option value="monthly">Monthly</option>
-          <option value="annually">Annually</option>
+          <option value="yearly">Yearly</option>
+          <option value="weekly">Weekly</option>
+          <option value="daily">Daily</option>
         </select>
       </label>
       <label>
