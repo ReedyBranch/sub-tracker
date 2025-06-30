@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import SubForm from "../components/SubForm";
 import SubList from "../components/SubList";
+import ConfirmModal from "../components/ConfirmModal";
 import {
   createSubscription,
   fetchUserSubscriptions,
@@ -32,6 +33,8 @@ interface SubscriptionFormData {
 function SubDashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [editingSub, setEditingSub] = useState<Subscription | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [subToDelete, setSubToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSubscriptions = async () => {
@@ -134,7 +137,14 @@ function SubDashboard() {
     }
   };
 
-  const handleDeleteSubscription = async (id: string) => {
+  const handleDeleteClick = (id: string) => {
+    setSubToDelete(id);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!subToDelete) return;
+
     const token = getToken();
     if (!token) {
       alert("Authentication token is missing.");
@@ -142,10 +152,14 @@ function SubDashboard() {
     }
 
     try {
-      await apiDeleteSubscription(id, token);
-      setSubscriptions((prev) => prev.filter((sub) => sub.id !== id));
+      await apiDeleteSubscription(subToDelete, token);
+      setSubscriptions((prev) => prev.filter((sub) => sub.id !== subToDelete));
     } catch (err) {
       console.error("Delete failed:", err);
+      alert("Failed to delete subscription.");
+    } finally {
+      setShowConfirmModal(false);
+      setSubToDelete(null);
     }
   };
 
@@ -175,8 +189,19 @@ function SubDashboard() {
       <SubList
         subscriptions={subscriptions}
         onEdit={(sub) => setEditingSub(sub)}
-        onDelete={handleDeleteSubscription}
+        onDelete={handleDeleteClick}
       />
+
+      {showConfirmModal && (
+        <ConfirmModal
+          message="Are you sure you want to delete this subscription?"
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setShowConfirmModal(false);
+            setSubToDelete(null);
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }
