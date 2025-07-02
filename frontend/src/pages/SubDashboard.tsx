@@ -3,6 +3,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import SubForm from "../components/SubForm";
 import SubList from "../components/SubList";
 import ConfirmModal from "../components/ConfirmModal";
+import "../App.css";
 import {
   createSubscription,
   fetchUserSubscriptions,
@@ -40,25 +41,25 @@ function SubDashboard() {
     const loadSubscriptions = async () => {
       try {
         const data = await fetchUserSubscriptions();
-        interface ApiSubscription {
-          _id: string;
-          name: string;
-          price: number;
-          startDate: string;
-          frequency?: string;
-          category?: string;
-          paymentMethod?: string;
-        }
-
-        const formatted = data.map((sub: ApiSubscription) => ({
-          id: sub._id,
-          name: sub.name,
-          amount: sub.price,
-          nextRenewal: sub.startDate,
-          frequency: sub.frequency,
-          category: sub.category,
-          paymentMethod: sub.paymentMethod,
-        }));
+        const formatted = data.map(
+          (sub: {
+            _id: string;
+            name: string;
+            price: number;
+            startDate: string;
+            frequency?: string;
+            category?: string;
+            paymentMethod?: string;
+          }) => ({
+            id: sub._id,
+            name: sub.name,
+            amount: sub.price,
+            nextRenewal: sub.startDate,
+            frequency: sub.frequency,
+            category: sub.category,
+            paymentMethod: sub.paymentMethod,
+          })
+        );
         setSubscriptions(formatted);
       } catch (error) {
         console.error("Error loading subscriptions:", error);
@@ -70,10 +71,7 @@ function SubDashboard() {
 
   const handleAddSubscription = async (sub: SubscriptionFormData) => {
     const token = getToken();
-    if (!token) {
-      alert("Authentication token is missing.");
-      return;
-    }
+    if (!token) return alert("Authentication token is missing.");
 
     try {
       const subscription = await createSubscription(sub, token);
@@ -97,10 +95,7 @@ function SubDashboard() {
     if (!editingSub) return;
 
     const token = getToken();
-    if (!token) {
-      alert("Authentication token is missing.");
-      return;
-    }
+    if (!token) return alert("Authentication token is missing.");
 
     try {
       const updated = await apiUpdateSubscription(
@@ -108,11 +103,8 @@ function SubDashboard() {
         updates,
         token
       );
-
-      if (!updated || !updated._id) {
-        console.error("❌ Invalid updated response:", updated);
+      if (!updated || !updated._id)
         throw new Error("Missing _id in updated response");
-      }
 
       setSubscriptions((prev) =>
         prev.map((sub) =>
@@ -129,11 +121,10 @@ function SubDashboard() {
             : sub
         )
       );
-
       setEditingSub(null);
     } catch (err) {
       console.error("Edit failed:", err);
-      alert("Something went wrong while updating. Check console for details.");
+      alert("Something went wrong while updating.");
     }
   };
 
@@ -144,12 +135,8 @@ function SubDashboard() {
 
   const confirmDelete = async () => {
     if (!subToDelete) return;
-
     const token = getToken();
-    if (!token) {
-      alert("Authentication token is missing.");
-      return;
-    }
+    if (!token) return alert("Authentication token is missing.");
 
     try {
       await apiDeleteSubscription(subToDelete, token);
@@ -165,32 +152,42 @@ function SubDashboard() {
 
   return (
     <DashboardLayout>
-      <h1>My Subscriptions</h1>
+      <div className="subdashboard px-3 py-5 fade-in">
+        <h1 className="text-center mb-5 text-glow">My Subscriptions</h1>
 
-      {!editingSub ? (
-        <SubForm onSubmit={handleAddSubscription} />
-      ) : (
-        <>
-          <h5>Editing Subscription</h5>
-          <SubForm
-            onSubmit={handleEditSubscription}
-            initialData={{
-              name: editingSub.name,
-              price: editingSub.amount,
-              startDate: editingSub.nextRenewal.split("T")[0],
-              category: editingSub.category || "",
-              paymentMethod: editingSub.paymentMethod || "",
-              frequency: editingSub.frequency || "monthly",
-            }}
+        <div className="card glass-card shadow-sm mb-5">
+          <div className="card-body">
+            <h5 className="card-title mb-3">
+              {editingSub ? "Edit Subscription" : "Add Subscription"}
+            </h5>
+            <SubForm
+              onSubmit={
+                editingSub ? handleEditSubscription : handleAddSubscription
+              }
+              initialData={
+                editingSub
+                  ? {
+                      name: editingSub.name,
+                      price: editingSub.amount,
+                      startDate: editingSub.nextRenewal.split("T")[0],
+                      category: editingSub.category || "",
+                      paymentMethod: editingSub.paymentMethod || "",
+                      frequency: editingSub.frequency || "monthly",
+                    }
+                  : undefined
+              }
+            />
+          </div>
+        </div>
+
+        <div className="row">
+          <SubList
+            subscriptions={subscriptions}
+            onEdit={(sub) => setEditingSub(sub)}
+            onDelete={handleDeleteClick}
           />
-        </>
-      )}
-
-      <SubList
-        subscriptions={subscriptions}
-        onEdit={(sub) => setEditingSub(sub)}
-        onDelete={handleDeleteClick}
-      />
+        </div>
+      </div>
 
       {showConfirmModal && (
         <ConfirmModal

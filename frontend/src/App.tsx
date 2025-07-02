@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import SubDashboard from "./pages/SubDashboard";
-import PrivateRoute from "./routes/PrivateRoute"; // adjust path if needed
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (

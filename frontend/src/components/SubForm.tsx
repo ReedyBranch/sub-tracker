@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export interface SubscriptionFormProps {
   onSubmit: (subscription: {
-    id?: string; // ✅ Optional when creating, required for editing
+    id?: string;
     name: string;
     price: number;
     startDate: string;
@@ -63,7 +63,7 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
     }
 
     const newSubscription = {
-      id: initialData?.id, // ✅ Include ID for editing
+      id: initialData?.id,
       name: name.trim(),
       price: Number(price),
       startDate,
@@ -74,9 +74,7 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
 
     try {
       await onSubmit(newSubscription);
-
       if (!initialData) {
-        // Reset only if it's not editing
         setName("");
         setPrice(0);
         setStartDate("");
@@ -91,65 +89,83 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit}>
-      <label>
-        Subscription Name
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Amount Paying ($)
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          required
-        />
-      </label>
-      <label>
-        Category
-        <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Payment Method
-        <input
-          type="text"
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Frequency
-        <select
-          value={frequency}
-          onChange={(e) => setFrequency(e.target.value)}
-          required
-        >
-          <option value="monthly">Monthly</option>
-          <option value="yearly">Yearly</option>
-          <option value="weekly">Weekly</option>
-          <option value="daily">Daily</option>
-        </select>
-      </label>
-      <label>
-        Next Renewal
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          required
-        />
-      </label>
-      <button type="submit">{initialData ? "Update" : "Submit"}</button>
+      <div className="row g-3">
+        <div className="col-md-4">
+          <label className="form-label">Subscription Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Amount Paying ($)</label>
+          <input
+            type="number"
+            className="form-control"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Category</label>
+          <input
+            type="text"
+            className="form-control"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Payment Method</label>
+          <input
+            type="text"
+            className="form-control"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Frequency</label>
+          <select
+            className="form-select"
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value)}
+            required
+          >
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Next Renewal</label>
+          <input
+            type="date"
+            className="form-control"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="col-12 text-end">
+          <button type="submit" className="btn btn-primary">
+            {initialData ? "Update Subscription" : "Add Subscription"}
+          </button>
+        </div>
+      </div>
     </form>
   );
 };
