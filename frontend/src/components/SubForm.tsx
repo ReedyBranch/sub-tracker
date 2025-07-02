@@ -25,17 +25,14 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
   onSubmit,
   initialData,
 }) => {
-  const [name, setName] = useState(initialData?.name || "");
-  const [price, setPrice] = useState(initialData?.price || 0);
-  const [startDate, setStartDate] = useState(initialData?.startDate || "");
-  const [category, setCategory] = useState(initialData?.category || "");
-  const [paymentMethod, setPaymentMethod] = useState(
-    initialData?.paymentMethod || ""
-  );
-  const [frequency, setFrequency] = useState(
-    initialData?.frequency || "monthly"
-  );
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [category, setCategory] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [frequency, setFrequency] = useState("monthly");
 
+  // ✅ Update form fields whenever initialData changes (or is cleared)
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
@@ -44,6 +41,14 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
       setCategory(initialData.category);
       setPaymentMethod(initialData.paymentMethod);
       setFrequency(initialData.frequency);
+    } else {
+      // Clear form when exiting edit mode
+      setName("");
+      setPrice(0);
+      setStartDate("");
+      setCategory("");
+      setPaymentMethod("");
+      setFrequency("monthly");
     }
   }, [initialData]);
 
@@ -74,14 +79,6 @@ const SubForm: React.FC<SubscriptionFormProps> = ({
 
     try {
       await onSubmit(newSubscription);
-      if (!initialData) {
-        setName("");
-        setPrice(0);
-        setStartDate("");
-        setCategory("");
-        setPaymentMethod("");
-        setFrequency("monthly");
-      }
     } catch (error) {
       console.error("Failed to submit subscription:", error);
     }

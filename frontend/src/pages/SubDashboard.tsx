@@ -160,6 +160,7 @@ function SubDashboard() {
             <h5 className="card-title mb-3">
               {editingSub ? "Edit Subscription" : "Add Subscription"}
             </h5>
+
             <SubForm
               onSubmit={
                 editingSub ? handleEditSubscription : handleAddSubscription
@@ -177,6 +178,17 @@ function SubDashboard() {
                   : undefined
               }
             />
+
+            {editingSub && (
+              <div className="text-end mt-3">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setEditingSub(null)}
+                >
+                  Cancel Edit
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

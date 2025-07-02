@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/auth.api";
+import NavBar from "../components/NavBar";
 
 function Register() {
   const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,56 +41,59 @@ function Register() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <form
-        onSubmit={handleSubmit}
-        className="p-4 border rounded bg-white"
-        style={{ maxWidth: 400, width: "100%" }}
-      >
-        <h2 className="mb-4 text-center">Register</h2>
+    <>
+      <NavBar />
+      <div className="d-flex justify-content-center align-items-center vh-100 register-container fade-in">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 rounded glass-card"
+          style={{ maxWidth: 400, width: "100%" }}
+        >
+          <h2 className="mb-4 text-center text-glow">Register</h2>
 
-        <div className="mb-3">
-          <label className="form-label">Name</label>
-          <input
-            type="text"
-            className="form-control"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Name</label>
+            <input
+              type="text"
+              className="form-control dark-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
 
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-control dark-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div className="mb-3">
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-control dark-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary w-100">
-          Register
-        </button>
+          <button type="submit" className="btn btn-primary w-100">
+            Register
+          </button>
 
-        <p className="text-center mt-3 small">
-          Already have an account? <a href="/login">Login</a>
-        </p>
-      </form>
-    </div>
+          <p className="text-center mt-3 small text-light">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
+        </form>
+      </div>
+    </>
   );
 }
 

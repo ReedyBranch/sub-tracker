@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth.api"; // Make sure this function exists
+import { useNavigate, Link } from "react-router-dom";
+import { loginUser } from "../api/auth.api";
+import NavBar from "../components/NavBar";
 
 function Login() {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -23,7 +23,7 @@ function Login() {
       const token = response?.data?.token;
 
       if (token) {
-        localStorage.setItem("token", token); // save the token
+        localStorage.setItem("token", token);
         navigate("/dashboard");
       } else {
         alert("Login failed: No token returned.");
@@ -56,45 +56,48 @@ function Login() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <form
-        onSubmit={handleSubmit}
-        className="p-4 border rounded bg-white"
-        style={{ maxWidth: 400, width: "100%" }}
-      >
-        <h2 className="mb-4 text-center">Login</h2>
+    <>
+      <NavBar />
+      <div className="d-flex justify-content-center align-items-center vh-100 login-container fade-in">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 rounded glass-card"
+          style={{ maxWidth: 400, width: "100%" }}
+        >
+          <h2 className="mb-4 text-center text-glow">Login</h2>
 
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-control dark-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div className="mb-3">
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-control dark-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary w-100">
-          Log In
-        </button>
+          <button type="submit" className="btn btn-primary w-100">
+            Log In
+          </button>
 
-        <p className="text-center mt-3 small">
-          Don’t have an account? <a href="/register">Register</a>
-        </p>
-      </form>
-    </div>
+          <p className="text-center mt-3 small text-light">
+            Don’t have an account? <Link to="/register">Register</Link>
+          </p>
+        </form>
+      </div>
+    </>
   );
 }
 
