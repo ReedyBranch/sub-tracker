@@ -3,6 +3,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import SubForm from "../components/SubForm";
 import SubList from "../components/SubList";
 import ConfirmModal from "../components/ConfirmModal";
+import EditModal from "../components/EditModal";
 import "../App.css";
 import {
   createSubscription,
@@ -36,6 +37,7 @@ function SubDashboard() {
   const [editingSub, setEditingSub] = useState<Subscription | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [subToDelete, setSubToDelete] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const loadSubscriptions = async () => {
@@ -122,6 +124,7 @@ function SubDashboard() {
         )
       );
       setEditingSub(null);
+      setShowEditModal(false);
     } catch (err) {
       console.error("Edit failed:", err);
       alert("Something went wrong while updating.");
@@ -157,45 +160,18 @@ function SubDashboard() {
 
         <div className="card glass-card shadow-sm mb-5">
           <div className="card-body">
-            <h5 className="card-title mb-3">
-              {editingSub ? "Edit Subscription" : "Add Subscription"}
-            </h5>
-
-            <SubForm
-              onSubmit={
-                editingSub ? handleEditSubscription : handleAddSubscription
-              }
-              initialData={
-                editingSub
-                  ? {
-                      name: editingSub.name,
-                      price: editingSub.amount,
-                      startDate: editingSub.nextRenewal.split("T")[0],
-                      category: editingSub.category || "",
-                      paymentMethod: editingSub.paymentMethod || "",
-                      frequency: editingSub.frequency || "monthly",
-                    }
-                  : undefined
-              }
-            />
-
-            {editingSub && (
-              <div className="text-end mt-3">
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => setEditingSub(null)}
-                >
-                  Cancel Edit
-                </button>
-              </div>
-            )}
+            <h5 className="card-title mb-3">Add Subscription</h5>
+            <SubForm onSubmit={handleAddSubscription} />
           </div>
         </div>
 
         <div className="row">
           <SubList
             subscriptions={subscriptions}
-            onEdit={(sub) => setEditingSub(sub)}
+            onEdit={(sub) => {
+              setEditingSub(sub);
+              setShowEditModal(true);
+            }}
             onDelete={handleDeleteClick}
           />
         </div>
@@ -208,6 +184,32 @@ function SubDashboard() {
           onCancel={() => {
             setShowConfirmModal(false);
             setSubToDelete(null);
+          }}
+        />
+      )}
+
+      {showEditModal && editingSub && (
+        <EditModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onSave={(updatedData) =>
+            handleEditSubscription({
+              name: updatedData.name,
+              price: updatedData.amount,
+              startDate: updatedData.nextRenewal,
+              category: updatedData.category || "",
+              paymentMethod: updatedData.paymentMethod || "",
+              frequency: updatedData.frequency || "monthly",
+            })
+          }
+          initialData={{
+            id: editingSub.id,
+            name: editingSub.name,
+            amount: editingSub.amount,
+            nextRenewal: editingSub.nextRenewal.split("T")[0],
+            category: editingSub.category || "",
+            paymentMethod: editingSub.paymentMethod || "",
+            frequency: editingSub.frequency || "monthly",
           }}
         />
       )}
